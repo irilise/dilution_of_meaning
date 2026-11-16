@@ -2,26 +2,14 @@
 
 ## Research Question
 
-How do language models exhibit attractor dynamics in semantic space when repeatedly summarizing the same text? Specifically, does iterative summarization cause text to converge toward particular semantic attractors, and can we measure this drift using embedding-based and token-level metrics?
+When viewing LLM to LLM text chains as dynamical systems, whether as a result of agentic loops or the propagation of LLM-generated content on the internet, how do attractor dynamics apply?
 
+We seek to identify any attractors and their strength, in addition to making attempts at predicting possible dangers or demerits of these attractors. Are they harmless, or might they introduce ethicial concerns such as biases, or even cause degeneration of model performance similar to model collapse?
 ## Overview
 
-This project investigates whether language models exhibit "attractor dynamics"—a tendency to converge toward particular outputs or semantic regions—when iteratively summarizing or paraphrasing text. By repeatedly running a text through a summarization pipeline, we can observe:
+We first reproduce the experiment of Perez et. al., 2025 "When LLM's play the telephone game," by creating chains of repeated rephrasing and measuring toxicity, positivity, difficulty, and length. As an extension, we also use metrics like bertscore, cosine similarity, and calibrated cosine similarity. 
 
-1. **Semantic Drift**: Gradual loss of fidelity to the original meaning
-2. **Convergence Patterns**: Whether the model converges to stable outputs or exhibits chaotic behavior
-3. **Memorization Effects**: How much well-known passages behave differently from obscure texts
-
-This has implications for understanding LLM reliability in multi-turn conversations, chain-of-thought reasoning, and cumulative error propagation.
-
-## Methodology
-
-- **Model**: Qwen3-0.6B (lightweight, runs on Apple Silicon)
-- **Iterations**: 100 rounds of summarization per text
-- **Input Texts**: 20 passages from public-domain literature (mix of famous and obscure)
-- **Metrics**:
-  - **BERTScore F1**: Semantic precision/recall relative to original text
-  - **Cosine Similarity**: Embedding-based similarity using Sentence Transformers
+We then extend Perez' experiment with a different LLM chain, which seeks to emulate what happens with question answer chains, modeling the propagation of LLM-generated responses to questions across the internet. 
 
 ## Quick Start
 
