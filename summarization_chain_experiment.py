@@ -1,13 +1,11 @@
 import torch
 import matplotlib.pyplot as plt
-# from mlx_vlm import load, generate
 from mlx_lm import load, generate
 from mlx_lm import sample_utils
 from pathlib import Path
 from bert_score import BERTScorer
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
-import kagglehub
 
 
 class SemanticScorer:
@@ -97,12 +95,9 @@ if __name__ == "__main__":
     # Batching isn't working in mlx-vlm for gemma4 rn
     # BATCH_SIZE = 32
 
-    path = kagglehub.dataset_download("nishantsingh96/refined-bookcorpus-dataset")
-
-    print("Path to dataset files:", path)
-    INPUT_DIR = "./paragraphs"
+    # Load paragraphs from local directory instead of Kaggle dataset
+    paragraph_dir = Path('paragraphs')
     ITERATIONS = 100
-    dir = Path(INPUT_DIR)
 
     device = "cpu"
     if torch.backends.mps.is_available():
@@ -111,26 +106,29 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         device = torch.device("cuda")
 
+    print(f"Using device: {device}")
     print("Loading bert scorer")
     bertscorer = BERTScorer(lang="en", device=device)
 
-    print("Loading semanticscorer")
+    print("Loading semantic scorer")
     semanticscorer = SemanticScorer(device=device)
 
     # gen_model_id = "mlx-community/gemma-4-e4b-it-8bit"
 
     gen_model_id = "mlx-community/Qwen3-0.6B-bf16"
+    print(f"Loading model: {gen_model_id}")
     gen, gen_tokenizer = load(gen_model_id)
 
     print("Loading data . . .")
     texts = []
     text_names = []
-    for text in dir.iterdir():
-        if not text.is_dir() and text.name != ".DS_Store":
-            if text.is_file():
-                with open(text, 'r', encoding='utf-8', errors='ignore') as f:
-                    texts.append(f.read().strip())
-                    text_names.append(text.name)  # Store the file name
+    for text_file in sorted(paragraph_dir.iterdir()):
+        if text_file.is_file() and text_file.suffix == '.txt' and text_file.name != ".DS_Store":
+            with open(text_file, 'r', encoding='utf-8', errors='ignore') as f:
+                texts.append(f.read().strip())
+                text_names.append(text_file.name)
+
+    print(f"Loaded {len(texts)} passages")
 
     output = []
     print("Commencing summarization loop: ")
